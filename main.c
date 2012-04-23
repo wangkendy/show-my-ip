@@ -32,7 +32,10 @@ int main()
 		exit(1);
 	}
 	optval = 1;
-	setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+	if (setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
+		perror("setsockopt()");
+		exit(1);
+	}
 
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -42,7 +45,10 @@ int main()
 		exit(1);
 	}
 
-	listen(server_sockfd, 5);
+	if (listen(server_sockfd, 5) < 0) {
+		perror("listen()");
+		exit(1);
+	}
 
 	fd_size = server_sockfd + 1;
 	FD_ZERO(&readfds);
@@ -72,8 +78,6 @@ int main()
 			sprintf(buf, "Your IP address is %s\n", ip_addr);
 			write(client_sockfd, buf, strlen(buf));
 			close(client_sockfd);
-			//FD_SET(client_sockfd, &readfds);
-			//if (fd_size <= client_sockfd) fd_size = client_sockfd + 1;
 		}
 	}
 
